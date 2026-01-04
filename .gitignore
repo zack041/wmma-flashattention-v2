@@ -1,0 +1,10 @@
+__pycache__/
+*.so
+*.o
+*.ptx
+*.cubin
+build/
+dist/
+*.egg-info/
+.env
+.DS_Store
