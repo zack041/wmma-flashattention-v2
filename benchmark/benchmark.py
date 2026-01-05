@@ -40,7 +40,6 @@ print("=" * 70)
 print(f"{'N':>6} | {'FA2':>12} | {'SDPA':>12} | {'Sanity Check':>12}")
 print("=" * 70)
 
-#warmup
 Q = torch.randn(2, 4, 2048, 64, device='cuda')
 K = torch.randn(2, 4, 2048, 64, device='cuda')
 V = torch.randn(2, 4, 2048, 64, device='cuda')
