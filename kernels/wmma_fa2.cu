@@ -163,8 +163,14 @@ __global__ void wmma_fa2(float* Q, float* K, float* V, float* O, int N, int d, i
     wmma::store_matrix_sync(&O[q_offset+32], o3_frag, 64, wmma::mem_row_major);
     wmma::store_matrix_sync(&O[q_offset+48], o4_frag, 64, wmma::mem_row_major);
 
-    for(int i=0;i<32;i++){
-        O[q_offset+lanex*32+i] /= l;
+    __shared__ float row_l[16];
+    if (lanex % 2 == 0) {
+        row_l[lanex / 2] = l;
+    }
+    __syncthreads();
+
+    for(int i = 0; i < 32; i++) {
+        O[q_offset + lanex+32*i] /= row_l[(lanex+32*i)/64];
     }
 }
 
