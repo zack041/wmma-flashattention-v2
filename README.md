@@ -38,7 +38,8 @@ Nsight Compute analysis highlights several dominant performance bottlenecks:
 
 #### Future Work
 
-- Implement strided access to global memory for coalesced storing and padding strategies to mitigate bank conflicts
+- Since wmma fragments are opaque, any per-thread extraction would be uncoalesced. To mitigate this effect, we stage data from fragments in shared memory first, then store into global memory.
+- Add padding in shared memory to resolve bank conflicts.
 - Explore optimum block size
 - Compatibility with any head dimensions.
 
