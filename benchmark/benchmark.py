@@ -52,4 +52,4 @@ for N in [64, 128, 256, 512, 1024, 2048]:
     V = torch.randn(2, 4, N, 64, device='cuda')
     fa2val, fa2time = benchmark(fa2_attention, Q, K, V)
     sdpaval, sdpatime = benchmark(sdpa_attention, Q, K, V)
-    print(f"{N:>6} | {fa2time:>10.3f}ms | {sdpatime:>10.3f}ms | {torch.allclose(fa2val, sdpaval, atol=1e-3)}x")
+    print(f"{N:>6} | {fa2time:>10.3f}ms | {sdpatime:>10.3f}ms | {torch.allclose(fa2val, sdpaval, atol=1e-3)}")
