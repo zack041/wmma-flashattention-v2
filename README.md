@@ -40,11 +40,11 @@ The latency when $N=2048$ is $4.678$ms, 61% of PyTorch SDPA.
 
 Nsight Compute analysis highlights three dominant performance bottlenecks:
 
-<img src="docs/v1_profiling" alt="v1 profiling" width="600"/>
+<img src="docs/v1_profiling.png" alt="v1 profiling" width="600"/>
 
 The uncoalesced access of global memory traces entirely due to the division of elements stored in O.
 
-<img src="docs/v1_uncoalesced_global_access" alt="v1 uncoalesced global access" width="600"/>
+<img src="docs/v1_uncoalesced_global_access.png" alt="v1 uncoalesced global access" width="600"/>
 
 Global memory is accessed in a pattern as shown below:
 ```bash
@@ -56,7 +56,7 @@ Global memory is accessed in a pattern as shown below:
 
 Moreover, bank conflicts are caused when accessing the array S.
 
-<img src="docs/v1_bank_conflict" alt="v1 bank conflict" width="600"/>
+<img src="docs/v1_bank_conflict.png" alt="v1 bank conflict" width="600"/>
 
 Shared memory is accessed in a pattern as shown below:
 ```bash
@@ -137,9 +137,9 @@ The latency when $N=2048$ is now $3.305$ms, $142%$ the speed of the previous ver
 
 Again, we profile this kernel using nsight compute.
 
-<img src="docs/v2_profiling" alt="v2 profiling" width="600"/>
+<img src="docs/v2_profiling.png" alt="v2 profiling" width="600"/>
 
-<img src="docs/v2_wmma_bank_conflict" alt="v2 wmma bank conflict" width="600"/>
+<img src="docs/v2_wmma_bank_conflict.png" alt="v2 wmma bank conflict" width="600"/>
 
 The profiling result suggests that the major bottleneck we now face is from the WMMA API.
 
