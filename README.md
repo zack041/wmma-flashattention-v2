@@ -141,12 +141,13 @@ Again, we profile this kernel using nsight compute.
 
 <img src="docs/v2_wmma_bank_conflict.png" alt="v2 wmma bank conflict" width="600"/>
 
-The profiling result suggests that the major bottleneck we now face is from the WMMA API.
+The profiling result suggests that the major bottleneck we now face is from loading data into WMMA fragments.
 
 ## Future Work
 
-- Explore optimum block size
+- Explore optimum block size.
 - Compatibility with any head dimensions.
+- Experiment with padding to solve bank conflicts when loading into WMMA fragments.
 
 ## demo
 
