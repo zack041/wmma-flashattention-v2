@@ -1,18 +1,18 @@
-### WMMA FlashAttention-2 (Forward)
+# WMMA FlashAttention-2 (Forward)
 
 A re-implementation of FlashAttention-2 forward pass using Warp-level Matrix Multiply Accumulate (WMMA) API.
 
-#### Problem Context
+## Problem Context
 
 FlashAttention-2 relies on a row-wise maximum for numerical stability. However, when implemented using WMMA, entries are stored in opaque fragments which does not preserve row order. An additional IO operation to another container needs to be implemented to ensure correct row correspondance, which reduces efficiency. This kernel uses warp-level maximum to avoid the need for extra IO operations.
 
-#### Design
+## Design
 
 - Warp-level maximum, computed by warp shuffling for numerical stability.
 - Memory Hierarchy, use of register in computation to avoid shared memory bank conflict.
 - Each block consists of a single-warp, operating on 16-rows of $Q$ with $d = 64$.
 
-#### Performance
+## Performance
 Benchmarked on NVIDIA T4 using cudaEventRecord
 
 ```bash
@@ -32,11 +32,11 @@ The following diagram compares the latency between two versions of wmma fa2 and 
 
 <img src="docs/Latency_Comparison.png" alt="Latency Comparison" width="600"/>
 
-#### Changelog
+## Changelog
 
-##### v.1
+### v.1
 
-The latency when $N=2048$ is $4.678$ms, 61% of PyTorch SDPA.
+The latency when $N=2048$ is 4.678ms, 61% of PyTorch SDPA.
 
 Nsight Compute analysis highlights three dominant performance bottlenecks:
 
@@ -81,7 +81,7 @@ BANKS    +=========+   +=========+
 
 Multiple threads are accessing the same banks in the same cycle, which cause bank conflict to drastically reduce performance.
 
-##### v.2
+### v.2
 
 To fix the uncoalesced global memory access pattern, we cannot directly modify the index, as each thread carries rowsum information.
 
@@ -133,7 +133,7 @@ for(int i=0;i<16;i++){
 }
 ```
 
-The latency when $N=2048$ is now $3.305$ms, $142%$ the speed of the previous version, and $87%$ of PyTorch SDPA.
+The latency when $N=2048$ is now 3.305ms, 142% the speed of the previous version, and 87% of PyTorch SDPA.
 
 Again, we profile this kernel using nsight compute.
 
@@ -143,12 +143,12 @@ Again, we profile this kernel using nsight compute.
 
 The profiling result suggests that the major bottleneck we now face is from the WMMA API.
 
-#### Future Work
+## Future Work
 
 - Explore optimum block size
 - Compatibility with any head dimensions.
 
-#### demo
+## demo
 
 run in colab <br>
 
