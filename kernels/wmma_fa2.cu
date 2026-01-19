@@ -83,7 +83,6 @@ __global__ void wmma_fa2(float* Q, float* K, float* V, float* O, int N, int d, i
         }
         __syncthreads();
 
-        //compute S
         wmma::fill_fragment(c1_frag, 0.0f);
         wmma::fill_fragment(c2_frag, 0.0f);
 
@@ -100,24 +99,37 @@ __global__ void wmma_fa2(float* Q, float* K, float* V, float* O, int N, int d, i
         wmma::store_matrix_sync(&S[0], c1_frag, 32, wmma::mem_row_major);
         wmma::store_matrix_sync(&S[16], c2_frag, 32, wmma::mem_row_major);
         __syncthreads();
-        
-        float lanemax = -INFINITY;
+
+        float s_reg[16];
+        #pragma unroll
         for(int i=0;i<16;i++){
-            lanemax = max(lanemax,S[lanex*16+i]*softmax_scale);
+            s_reg[i] = S[lanex*16+i] * softmax_scale;
+        }
+
+        float lanemax = -INFINITY;
+        #pragma unroll
+        for(int i=0;i<16;i++){
+            lanemax = max(lanemax, s_reg[i]);
         }
         float tilemax = warpReduceMax(lanemax);
         float mprev = m;
-        m = fmaxf(m,tilemax);
-        float update = __expf(mprev-m);
-        l = update*l;
+        m = fmaxf(m, tilemax);
+        float update = __expf(mprev - m);
+        l = update * l;
+
         float lanep = 0.0f;
+        #pragma unroll
         for(int i=0;i<16;i++){
-            S[lanex*16+i] = __expf((S[lanex*16+i])*softmax_scale-m);
-            lanep += S[lanex*16+i];
-            Shalf[lanex*16+i] = __float2half(S[lanex*16+i]);
+            s_reg[i] = __expf(s_reg[i] - m);
+            lanep += s_reg[i];
         }
         l += pairReduceSum(lanep);
-        
+
+        #pragma unroll
+        for(int i=0;i<16;i++){
+            Shalf[lanex*16+i] = __float2half(s_reg[i]);
+        }
+
         for(int i = 0; i < o1_frag.num_elements; i++){
             o1_frag.x[i] *= update;
             o2_frag.x[i] *= update;
